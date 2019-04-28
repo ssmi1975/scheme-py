@@ -1,12 +1,7 @@
 from arpeggio import visit_parse_tree, PTNodeVisitor
 from .parser import parse
+from .model import Identifier, ProcedureCall
 import copy
-import collections
-
-Identifier = collections.namedtuple('Identifier', ('name'))
-
-ProcedureCall = collections.namedtuple('ProcedureCall', ('operator', 'operand'))
-
 
 class SchemeASTVisitor(PTNodeVisitor):
     def __init__(self, context={}, **kwargs):
@@ -40,8 +35,6 @@ class SchemeASTVisitor(PTNodeVisitor):
         else:
             return ProcedureCall(children[0], children[1:])
 
-    def visit_program(self, node, children):
-        return Program()
 
 VISITOR = SchemeASTVisitor(debug=False)
 def translate(tree):

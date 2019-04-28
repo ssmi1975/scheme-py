@@ -1,6 +1,7 @@
 import pytest
 import scheme.parser as parser
-from scheme.translator import Identifier, translate
+from scheme.translator import translate
+from scheme.model import Identifier
 
 @pytest.mark.parametrize("identifier", ["lambda", "q", "list->vector", "soup", "+", "V17a",
         "<=?", "a34kTMNs" "the-word-recursion-has-many-meanings"])

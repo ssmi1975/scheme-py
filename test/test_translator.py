@@ -1,6 +1,6 @@
 import pytest
 from scheme import translate
-from scheme.translator import Identifier, ProcedureCall
+from scheme.model import Identifier, ProcedureCall
 
 @pytest.mark.parametrize("text,expected", [
     ('16', 16),
