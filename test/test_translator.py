@@ -1,5 +1,5 @@
 import pytest
-from scheme import execute
+from scheme import translate
 
 @pytest.mark.parametrize("text,expected", [
     ('16', 16),
@@ -17,5 +17,5 @@ from scheme import execute
     (r"""'#(0 (2 2 2 2) "Anna")""", [0, [2, 2, 2, 2], "Anna"])
 ])
 def test_valid(text, expected):
-    result = execute(text)
+    result = translate(text)
     assert expected == result

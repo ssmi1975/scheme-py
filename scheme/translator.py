@@ -44,6 +44,6 @@ class SchemeASTVisitor(PTNodeVisitor):
 
 
 VISITOR = SchemeASTVisitor(debug=False)
-def execute(tree):
+def translate(tree):
     return visit_parse_tree(tree, VISITOR)
 

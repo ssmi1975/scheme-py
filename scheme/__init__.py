@@ -1,7 +1,7 @@
-from .execute import execute
+from .translator import translate
 
-def execute(text):
+def translate(text):
     from .parser import parse
-    from .execute import execute
-    return execute(parse(text))
+    from .translator import translate
+    return translate(parse(text))
 

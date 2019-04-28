@@ -1,11 +1,11 @@
 import pytest
 import scheme.parser as parser
-from scheme.execute import Identifier, execute
+from scheme.translator import Identifier, translate
 
 @pytest.mark.parametrize("identifier", ["lambda", "q", "list->vector", "soup", "+", "V17a",
         "<=?", "a34kTMNs" "the-word-recursion-has-many-meanings"])
 def test_identifier(identifier):
-    result = execute(parser.parser(parser.identifier).parse(identifier))
+    result = translate(parser.parser(parser.identifier).parse(identifier))
     assert Identifier(identifier) == result
     
     
