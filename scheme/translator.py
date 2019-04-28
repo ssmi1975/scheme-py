@@ -1,19 +1,12 @@
 from arpeggio import visit_parse_tree, PTNodeVisitor
 from .parser import parse
 import copy
+import collections
 
-class Identifier:
-    def __init__(self, name):
-        self.name = name
+Identifier = collections.namedtuple('Identifier', ('name'))
 
-    def __repr__(self):
-        return "Identifier({})".format(self.name)
+ProcedureCall = collections.namedtuple('ProcedureCall', ('operator', 'operand'))
 
-    def __eq__(self, other):
-        return self.name == other.name
-    
-    def __hash__(self):
-        return hash(self.name)
 
 class SchemeASTVisitor(PTNodeVisitor):
     def __init__(self, context={}, **kwargs):
@@ -41,7 +34,14 @@ class SchemeASTVisitor(PTNodeVisitor):
     def visit_identifier(self, node, children):
         return Identifier(node.value)
 
+    def visit_procedure_call(self, node, children):
+        if len(children) == 1:
+            return ProcedureCall(children[0], ())
+        else:
+            return ProcedureCall(children[0], children[1:])
 
+    def visit_program(self, node, children):
+        return Program()
 
 VISITOR = SchemeASTVisitor(debug=False)
 def translate(tree):
