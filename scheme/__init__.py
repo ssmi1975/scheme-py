@@ -1,3 +1,5 @@
+from .execute import execute
+
 def execute(text):
     from .parser import parse
     from .execute import execute

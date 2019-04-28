@@ -1,10 +1,13 @@
 import pytest
 import scheme.parser as parser
+from scheme.execute import Identifier, execute
 
 @pytest.mark.parametrize("identifier", ["lambda", "q", "list->vector", "soup", "+", "V17a",
         "<=?", "a34kTMNs" "the-word-recursion-has-many-meanings"])
 def test_identifier(identifier):
-    parser.parser(parser.identifier).parse(identifier)
+    result = execute(parser.parser(parser.identifier).parse(identifier))
+    assert Identifier(identifier) == result
+    
     
 def test_comment():
     text = """;;; The FACT procedure computes the factorial
