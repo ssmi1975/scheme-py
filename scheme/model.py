@@ -1,6 +1,17 @@
-import collections
+from collections import namedtuple
 
-Identifier = collections.namedtuple('Identifier', ('name'))
+Identifier = namedtuple('Identifier', 'name')
 
-ProcedureCall = collections.namedtuple('ProcedureCall', ('operator', 'operand'))
+Symbol = namedtuple('Symbol', 'name')
 
+Variable = namedtuple('Variable', 'name')
+
+ProcedureCall = namedtuple('ProcedureCall', ('operator', 'operand'))
+
+Lambda = namedtuple('Lambda', ('formals', 'body'))
+
+StandardProcedure = namedtuple('StandardProcedure', 'name')
+
+Vector = namedtuple('Vector', 'values')
+
+Character = namedtuple('Character', 'value')

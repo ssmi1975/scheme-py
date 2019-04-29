@@ -24,13 +24,13 @@ def datum(): return [simple_datum, complex_datum]
 def simple_datum(): return [boolean, number, character, string, symbol]
 def symbol(): return identifier
 def complex_datum(): return [_list, vector]
-def _list(): return  [("(", datum, ZeroOrMore(datum), ")"), ("(", OneOrMore(datum), ".", datum, ")"), abbreviation]
+def _list(): return  [("(", ZeroOrMore(datum), ")"), ("(", OneOrMore(datum), ".", datum, ")"), abbreviation]
 def abbreviation(): return abbrev_prefix, datum
 def abbrev_prefix(): return  ["'" , "`" , "," , ",@"]
 def vector(): return  "#(", ZeroOrMore(datum), ")"
 
 # 7.1.3
-def expression(): return [variable, literal, procedure_call, lambda_expression, conditional, derived_expression]
+def expression(): return [variable, procedure_call, lambda_expression, conditional, literal, derived_expression]
 def self_valuating(): return [boolean, number, character, string]
     
 def procedure_call(): return  "(", operator, ZeroOrMore(operand), ")"
