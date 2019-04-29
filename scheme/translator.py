@@ -1,6 +1,6 @@
 from arpeggio import visit_parse_tree, PTNodeVisitor
 from .parser import parse
-from .model import Identifier, ProcedureCall, Symbol, Variable, Lambda, Character, Vector
+from .model import Identifier, ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program
 import copy
 
 def to_tuple(value):
@@ -48,9 +48,16 @@ class SchemeASTVisitor(PTNodeVisitor):
 
     def visit_lambda_expression(self, node, children):
         if len(children) == 1:
-            return Lambda((), children[0])
+            return Lambda((), to_tuple(children[0]))
         else:
-            return Lambda(to_tuple(children[0]), children[1])
+            return Lambda(to_tuple(children[0]), to_tuple(children[1]))
+    
+    def visit_definition(self, node, children):
+        return Definition(children[0], children[1])
+
+    def visit_program(self, node, children):
+        return Program(to_tuple(children))
+
 
 VISITOR = SchemeASTVisitor(debug=False)
 def translate(tree):

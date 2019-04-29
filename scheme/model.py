@@ -15,3 +15,7 @@ StandardProcedure = namedtuple('StandardProcedure', 'name')
 Vector = namedtuple('Vector', 'values')
 
 Character = namedtuple('Character', 'value')
+
+Definition = namedtuple('Definition', ('variable', 'expression'))
+
+Program = namedtuple('Program', ('commands'))

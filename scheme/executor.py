@@ -1,4 +1,4 @@
-from .model import Identifier, ProcedureCall, Variable, Lambda, StandardProcedure, Symbol
+from .model import Identifier, ProcedureCall, Variable, Lambda, StandardProcedure, Symbol, Definition, Program
 from .stdproc import PROCEDURES
 
 def execute(obj, context):
@@ -19,6 +19,17 @@ def execute(obj, context):
         if not obj in context:
             raise(Exception("variable {} not found".format(obj.name)))
         return context[obj]
+    
+    elif isinstance(obj, Definition):
+        new_context = bind_variable(context, obj.variable, execute(obj.expression, context))
+        context.update(new_context)
+        return ()
+
+    elif isinstance(obj, Program):
+        result = ()
+        for c in obj.commands:
+            result = execute(c, context)
+        return result
 
 
 def bind_variable(context, variable, value):
@@ -34,14 +45,16 @@ def execute_procedure(proc, context):
     if operator in PROCEDURES:
         return PROCEDURES[operator](*operand)
     if isinstance(operator, Lambda):
-        print(operator.formals)
         if len(operand) > len(operator.formals):
             raise(Exception("wrong number of arguments {} for {}".format(operand, proc)))
         for i, o in enumerate(operand):
             context = bind_variable(context, operator.formals[i], o)
+        body = [execute(b, context) for b in operator.body]
         if len(operand) == len(operator.formals):
-            return execute(operator.body, context)
+            # closed expression
+            return body[-1]
         else:
-            return Lambda(operator.formals[len(operand):], execute(operator.body, context))
+            # curry-ing
+            return Lambda(operator.formals[len(operand):], tuple(body))
     else:
         raise(Exception("undefined procedure {}".format(operator)))
