@@ -30,13 +30,31 @@ def _assert_pair(arg):
     if not type(arg) == tuple:
         raise(Exception("expecting pair, but got {}; value {} ".format(type(arg), arg)))
 
+def _assert_non_empty_pair(arg):
+    _assert_pair(arg)
+    if len(arg) == 0:
+        raise(Exception("expecting non-empty list, but an empty list"))
+
 def _assert_int(arg):
     if not type(arg) == int:
         raise(Exception("expecting int, but got {}; value {} ".format(type(arg), arg)))
 
-def car(*args):
-    _assert_pair(args)
+def car(args):
+    _assert_non_empty_pair(args)
     return tuple(args[0])
+
+def cdr(arg):
+    _assert_pair(arg)
+    _assert_non_empty_pair(args)
+    return tuple(args[1:])
+
+def is_atom(arg):
+    return type(arg) in (int, str, Symbol)
+
+def cons(head, pair):
+    if is_atom(pair):
+        pair = [pair]
+    return tuple([head] + pair)
 
 def make_vector(*args):
     _assert_pair(args)
@@ -70,4 +88,7 @@ PROCEDURES = {
     StandardProcedure('list'): _list,
     StandardProcedure('make-vector'): make_vector,
     StandardProcedure('car'): car,
+    StandardProcedure('cdr'): car,
+    StandardProcedure('cons'): cons,
+    StandardProcedure('atom?'): is_atom,
 }

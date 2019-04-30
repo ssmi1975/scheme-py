@@ -9,8 +9,8 @@ from scheme import execute
     ("(eqv? 100000000 100000000)", True),
     #("(eqv? (cons 1 2) (cons 1 2))", False),
     ("(eqv? #f 'nil)", False),
-    #("(let ((p (lambda (x) x))) (eqv? p p))", False),
-    #("(let ((p (lambda (x) x))) (eqv? p p))", False),
+    ("(let ((p (lambda (x) x))) (eqv? p p))", False),
+    ("(let ((p (lambda (x) x))) (eqv? p p))", False),
 ])
 def test_eqv(text, expected):
     assert expected == execute(text)
@@ -20,9 +20,9 @@ def test_eqv(text, expected):
     ("(eq? (list 'a) (list 'a))", False),
     ("(eq? '() '())", True),
     ("(eq? car car)", True),
-    #("(let ((n (+ 2 3))) (let ((x '(a))) (eq? x x))", True),
-    #("(let ((x '#())) (eq? x x))", True),
-    #("(let ((p (lambda (x) x))) (eq? p p))", True),
+    ("(let ((n (+ 2 3))) (let ((x '(a))) (eq? x x))", True),
+    ("(let ((x '#())) (eq? x x))", True),
+    ("(let ((p (lambda (x) x))) (eq? p p))", True),
 ])
 def test_eq(text, expected):
     assert expected == execute(text)

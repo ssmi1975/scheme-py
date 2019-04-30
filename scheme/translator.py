@@ -1,12 +1,19 @@
 from arpeggio import visit_parse_tree, PTNodeVisitor
 from .parser import parse
-from .model import Identifier, ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program, Conditional
+from .model import Identifier, ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program, Conditional, Quotation
 import copy
 
 def to_tuple(value):
     if isinstance(value, list):
         return tuple(value)
     return (value,)
+
+
+def list_to_tuple(value):
+    if isinstance(value, list):
+        return tuple(value)
+    return value
+
 
 class SchemeASTVisitor(PTNodeVisitor):
     def __init__(self, context={}, **kwargs):
@@ -36,6 +43,9 @@ class SchemeASTVisitor(PTNodeVisitor):
 
     def visit_vector(self, node, children):
         return Vector(to_tuple(children))
+
+    def visit_quotation(self, node, children):
+        return Quotation(children[0])
 
     def visit_identifier(self, node, children):
         return Identifier(node.value)

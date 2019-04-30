@@ -1,7 +1,27 @@
 import pytest
 from scheme import translate
 from scheme.executor import execute
-from scheme.model import Variable, Symbol
+from scheme.model import Variable, Symbol, Vector, Quotation
+
+@pytest.mark.parametrize("text,expected", [
+    ("(quote a)", Symbol('a')),
+    ("(quote #(a b c))", Vector((Symbol('a'), Symbol('b'), Symbol('c')))),
+    ("(quote (+ 1 2))", (Symbol('+'), 1, 2)),
+    ("'a", Symbol('a')),
+    ("'#(a b c)",  Vector((Symbol('a'), Symbol('b'), Symbol('c')))),
+    ("'()", ()),
+    ("'(+ 1 2)", (Symbol('+'), 1, 2)),
+    ("'(quote a)", (Symbol('quote'), Symbol('a'))),
+    ("''a", Quotation(Symbol('a'))),
+    ("'\"abc\"", "abc"),
+    ("\"abc\"", "abc"),
+    ("'145932", 145932),
+    ("'#t", True),
+    ("#t", True),
+])
+def test_literal(text, expected):
+    print(execute(translate(text), {}))
+    assert expected == execute(translate(text), {})
 
 def test_variable():
     ast = translate('a')

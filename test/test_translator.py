@@ -1,6 +1,6 @@
 import pytest
 from scheme import translate
-from scheme.model import Identifier, ProcedureCall, Symbol, Lambda, Variable, Character, Vector, Definition, Conditional
+from scheme.model import Identifier, ProcedureCall, Symbol, Lambda, Variable, Character, Vector, Definition, Conditional, Quotation
 
 @pytest.mark.parametrize("text,expected", [
     ('16', 16),
@@ -8,16 +8,17 @@ from scheme.model import Identifier, ProcedureCall, Symbol, Lambda, Variable, Ch
     (r'#\\t', Character("t")),
     (r'#t', True),
     (r'#f', False),
-    ("'17", 17),
+    ("'17", Quotation(17)),
     #("`17", 17),
     #(",17", 17),
     #(",@17", 17),
     #("#(17)", 17),
-    ("(quote 17)", 17),
-    (r"'(1 2 3)", (1, 2, 3)),
-    (r"""'#(0 (2 2 2 2) "Anna")""", Vector((0, (2, 2, 2, 2), "Anna"))),
-    (r"'()", ()),
-    (r"'nil", Symbol("nil")),
+    ("(quote 17)", Quotation(17) ),
+    ( r"'(1 2 3)", Quotation((1, 2, 3)) ),
+    ( r"""'#(0 (2 2 2 2) "Anna")""", Quotation(Vector((0, (2, 2, 2, 2), "Anna"))) ),
+    ( r"'()", Quotation(()) ),
+    ( r"'nil", Quotation(Symbol("nil")) ),
+    ( r"''a", Quotation(Quotation(Symbol("a"))) ),
 ])
 def test_literal(text, expected):
     result = translate(text).commands[0]
@@ -54,7 +55,7 @@ def test_definition(text, expected):
     assert expected == translate(text).commands[0]
 
 @pytest.mark.parametrize("text,expected", [
-    ("(if (= 3 2) 'yes 'no)", Conditional(ProcedureCall(Variable('='), (3, 2)), Symbol('yes'), Symbol('no'))),
+    ("(if (= 3 2) 'yes 'no)", Conditional(ProcedureCall(Variable('='), (3, 2)), Quotation(Symbol('yes')), Quotation(Symbol('no')))),
     ("((if #f - +) 3 4)", ProcedureCall(Conditional(False, Variable('-'), Variable('+')), (3, 4))),
 ])
 def test_conditional(text, expected):

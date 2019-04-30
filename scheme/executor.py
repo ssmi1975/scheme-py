@@ -1,8 +1,8 @@
-from .model import Identifier, ProcedureCall, Variable, Lambda, StandardProcedure, Symbol, Definition, Program, Conditional
+from .model import Identifier, ProcedureCall, Variable, Lambda, StandardProcedure, Symbol, Definition, Program, Conditional, Vector, Quotation
 from .stdproc import PROCEDURES
 
 def execute(obj, context):
-    for t in (int, str, Symbol, Lambda):
+    for t in (int, str, Symbol, Lambda, Vector):
         if isinstance(obj, t):
             return obj
 
@@ -38,6 +38,8 @@ def execute(obj, context):
         else:
             return execute(obj.alternate, {})
 
+    elif isinstance(obj, Quotation):
+        return obj.datum
 
 
 
@@ -48,10 +50,22 @@ def bind_variable(context, variable, value):
     new_context[variable] = value
     return new_context
 
+def execute_let(let_proc, context):
+    context = bind_variable()
+    for var, value in let_proc.operand[0]:
+        context = bind_variable(var, value)
+    return execute(let_proc.body, context)
+
+LETS = {
+    Variable('let'): execute_let,
+}
 
 def execute_procedure(proc, context):
     operator = execute(proc.operator, context)
     operand = tuple((execute(a, context) for a in proc.operand))
+    if operator in LETS:
+        return LETS[operator](proc, context)
+
     if operator in PROCEDURES:
         return PROCEDURES[operator](*operand)
     if isinstance(operator, Lambda):

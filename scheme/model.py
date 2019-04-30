@@ -21,3 +21,5 @@ Definition = namedtuple('Definition', ('variable', 'expression'))
 Program = namedtuple('Program', ('commands'))
 
 Conditional = namedtuple('Conditional', ("test", "consequent", "alternate"))
+
+Quotation = namedtuple('Quotation', "datum")
