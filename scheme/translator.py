@@ -3,6 +3,8 @@ from .parser import parse
 from .model import Identifier, ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program, Conditional, Quotation
 import copy
 
+import pprint
+
 def to_tuple(value):
     if isinstance(value, list):
         return tuple(value)
@@ -61,6 +63,9 @@ class SchemeASTVisitor(PTNodeVisitor):
             return Lambda((), to_tuple(children[0]))
         else:
             return Lambda(to_tuple(children[0]), to_tuple(children[1]))
+    
+    def visit_formals(self, node, children):
+        return children
     
     def visit_definition(self, node, children):
         return Definition(children[0], children[1])

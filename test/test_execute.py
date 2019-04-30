@@ -1,7 +1,7 @@
 import pytest
 from scheme import translate
 from scheme.executor import execute
-from scheme.model import Variable, Symbol, Vector, Quotation
+from scheme.model import Variable, Symbol, Vector, Quotation, ProcedureCall
 
 @pytest.mark.parametrize("text,expected", [
     ("(quote a)", Symbol('a')),
@@ -28,10 +28,17 @@ def test_variable():
     result = execute(ast, {Variable("a"): 1})
     assert 1 == result
 
-def test_procedure():
-    ast = translate("((lambda x (+ x 1)) 2)")
-    result = execute(ast, {})
-    assert 3 == result
+@pytest.mark.parametrize("text,expected", [
+    ("((lambda x (+ x 1)) 2)", 3),
+    ("((lambda (x) (+ x x)) 4)", 8),
+    ("(define reverse-subtract (lambda (x y) (- y x))) (reverse-subtract 7 10) ", 3),
+    #("(define add4 (let ((x 4)) (lambda (y) (+ x y)))) (add4 6)  ", 10),
+])
+def test_procedure(text, expected):
+    context = {}
+    print(execute(translate(text), context))
+    print(context)
+    assert expected == execute(translate(text), {})
 
 def test_definition():
     ast = translate("""

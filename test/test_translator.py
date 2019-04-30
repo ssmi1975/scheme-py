@@ -41,7 +41,8 @@ def test_procedure_call(text, expected):
 @pytest.mark.parametrize("text,expected", [
     ('(lambda () 0)', Lambda((), (0,))),
     ('(lambda x (+ x 1))', Lambda((Variable('x'),), (ProcedureCall(Variable('+'), (Variable('x'), 1)),))),
-    ('(lambda x ((lambda y 1) x))', Lambda( (Variable('x'),), (ProcedureCall( Lambda( (Variable('y'),), (1,)), (Variable('x'),)),))),
+    ('(lambda x ((lambda y 1) x))', Lambda((Variable('x'),), (ProcedureCall( Lambda( (Variable('y'),), (1,)), (Variable('x'),)),))),
+    ('(lambda (x y) x)', Lambda((Variable('x'), Variable('y')), (Variable('x'),))),
 ])
 def test_lambda(text, expected):
     result = translate(text).commands[0]

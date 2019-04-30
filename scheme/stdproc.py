@@ -18,10 +18,22 @@ def number(value):
 def number_eq(*values):
     return all((values[0] == v for v in values))
 
-def plus(*args):
+def _assert_all_int(args):
     if not all((isinstance(arg, int) for arg in args)):
         raise(Exception("non-number value(s) are passed: {}".format(args)))
+
+def plus(*args):
+    _assert_all_int(args)
     return sum(args)
+
+def minus(*args):
+    _assert_all_int(args)
+    if len(args) == 1:
+        return -1 * args[0]
+    if len(args) == 2:
+        return args[0] - args[1]
+    else:
+        return args[0] - sum(args[1:])
 
 def _list(*args):
     return tuple(args)
@@ -83,6 +95,7 @@ PROCEDURES = {
     StandardProcedure('number?'): number,
     StandardProcedure('='): number_eq,
     StandardProcedure('+'): plus,
+    StandardProcedure('-'): minus,
     StandardProcedure('>'): more_than,
     StandardProcedure('<'): less_than,
     StandardProcedure('list'): _list,
