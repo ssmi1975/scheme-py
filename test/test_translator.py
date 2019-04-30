@@ -1,6 +1,6 @@
 import pytest
 from scheme import translate
-from scheme.model import Identifier, ProcedureCall, Symbol, Lambda, Variable, Character, Vector, Definition
+from scheme.model import Identifier, ProcedureCall, Symbol, Lambda, Variable, Character, Vector, Definition, Conditional
 
 @pytest.mark.parametrize("text,expected", [
     ('16', 16),
@@ -51,4 +51,11 @@ def test_lambda(text, expected):
     ("(define x (lambda x (+ 1 x)))", Definition( Variable("x"), Lambda( (Variable('x'),), (ProcedureCall(Variable('+'), (1, Variable('x'))),)))),
 ])
 def test_definition(text, expected):
+    assert expected == translate(text).commands[0]
+
+@pytest.mark.parametrize("text,expected", [
+    ("(if (= 3 2) 'yes 'no)", Conditional(ProcedureCall(Variable('='), (3, 2)), Symbol('yes'), Symbol('no'))),
+    ("((if #f - +) 3 4)", ProcedureCall(Conditional(False, Variable('-'), Variable('+')), (3, 4))),
+])
+def test_conditional(text, expected):
     assert expected == translate(text).commands[0]

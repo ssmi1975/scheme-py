@@ -1,6 +1,7 @@
+import pytest
 from scheme import translate
 from scheme.executor import execute
-from scheme.model import Variable
+from scheme.model import Variable, Symbol
 
 def test_variable():
     ast = translate('a')
@@ -18,3 +19,10 @@ def test_definition():
     (add1 3)""")
     result = execute(ast, {})
     assert 4 == result
+
+@pytest.mark.parametrize("text,expected", [
+    ("(if (> 3 2) 'yes 'no)", Symbol('yes')),
+])
+def test_conditional(text, expected):
+    ast = translate(text)
+    assert expected == execute(ast, {})

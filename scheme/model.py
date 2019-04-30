@@ -19,3 +19,5 @@ Character = namedtuple('Character', 'value')
 Definition = namedtuple('Definition', ('variable', 'expression'))
 
 Program = namedtuple('Program', ('commands'))
+
+Conditional = namedtuple('Conditional', ("test", "consequent", "alternate"))

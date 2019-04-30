@@ -1,6 +1,6 @@
 from arpeggio import visit_parse_tree, PTNodeVisitor
 from .parser import parse
-from .model import Identifier, ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program
+from .model import Identifier, ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program, Conditional
 import copy
 
 def to_tuple(value):
@@ -57,6 +57,12 @@ class SchemeASTVisitor(PTNodeVisitor):
 
     def visit_program(self, node, children):
         return Program(to_tuple(children))
+    
+    def visit_conditional(self, node, children):
+        if len(children) == 2:
+            return Conditional(children[0], children[1],())
+        else:
+            return Conditional(children[0], children[1], children[2])
 
 
 VISITOR = SchemeASTVisitor(debug=False)

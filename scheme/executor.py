@@ -1,4 +1,4 @@
-from .model import Identifier, ProcedureCall, Variable, Lambda, StandardProcedure, Symbol, Definition, Program
+from .model import Identifier, ProcedureCall, Variable, Lambda, StandardProcedure, Symbol, Definition, Program, Conditional
 from .stdproc import PROCEDURES
 
 def execute(obj, context):
@@ -30,6 +30,16 @@ def execute(obj, context):
         for c in obj.commands:
             result = execute(c, context)
         return result
+    
+    elif isinstance(obj, Conditional):
+        test = execute(obj.test, context)
+        if test != False:
+            return execute(obj.consequent, {})
+        else:
+            return execute(obj.alternate, {})
+
+
+
 
 
 def bind_variable(context, variable, value):
