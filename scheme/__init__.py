@@ -4,5 +4,6 @@ def translate(text):
     return translate(parse(text))
 
 def execute(text):
+    from .model import Context
     from .executor import execute
-    return execute(translate(text), {})
+    return execute(translate(text), Context())

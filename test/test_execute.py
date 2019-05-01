@@ -1,7 +1,7 @@
 import pytest
 from scheme import translate
 from scheme.executor import execute
-from scheme.model import Variable, Symbol, Vector, Quotation, ProcedureCall
+from scheme.model import Variable, Symbol, Vector, Quotation, ProcedureCall, Context
 
 @pytest.mark.parametrize("text,expected", [
     ("(quote a)", Symbol('a')),
@@ -20,12 +20,12 @@ from scheme.model import Variable, Symbol, Vector, Quotation, ProcedureCall
     ("#t", True),
 ])
 def test_literal(text, expected):
-    print(execute(translate(text), {}))
-    assert expected == execute(translate(text), {})
+    print(execute(translate(text), Context()))
+    assert expected == execute(translate(text), Context())
 
 def test_variable():
     ast = translate('a')
-    result = execute(ast, {Variable("a"): 1})
+    result = execute(ast, Context(bindings={Variable("a"): 1}))
     assert 1 == result
 
 @pytest.mark.parametrize("text,expected", [
@@ -35,16 +35,16 @@ def test_variable():
     #("(define add4 (let ((x 4)) (lambda (y) (+ x y)))) (add4 6)  ", 10),
 ])
 def test_procedure(text, expected):
-    context = {}
+    context = Context()
     print(execute(translate(text), context))
     print(context)
-    assert expected == execute(translate(text), {})
+    assert expected == execute(translate(text), Context())
 
 def test_definition():
     ast = translate("""
     (define add1 (lambda x (+ x 1)))
     (add1 3)""")
-    result = execute(ast, {})
+    result = execute(ast, Context())
     assert 4 == result
 
 @pytest.mark.parametrize("text,expected", [
@@ -52,4 +52,4 @@ def test_definition():
 ])
 def test_conditional(text, expected):
     ast = translate(text)
-    assert expected == execute(ast, {})
+    assert expected == execute(ast, Context())
