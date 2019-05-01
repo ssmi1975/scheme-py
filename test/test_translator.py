@@ -1,6 +1,6 @@
 import pytest
 from scheme import translate
-from scheme.model import Identifier, ProcedureCall, Symbol, Lambda, Variable, Character, Vector, Definition, Conditional, Quotation
+from scheme.model import Identifier, ProcedureCall, Symbol, Lambda, Variable, Character, Vector, Definition, Conditional, Quotation, Let
 
 @pytest.mark.parametrize("text,expected", [
     ('16', 16),
@@ -12,7 +12,7 @@ from scheme.model import Identifier, ProcedureCall, Symbol, Lambda, Variable, Ch
     #("`17", 17),
     #(",17", 17),
     #(",@17", 17),
-    #("#(17)", 17),
+    #("#(17)", Vector((17,))),
     ("(quote 17)", Quotation(17) ),
     ( r"'(1 2 3)", Quotation((1, 2, 3)) ),
     ( r"""'#(0 (2 2 2 2) "Anna")""", Quotation(Vector((0, (2, 2, 2, 2), "Anna"))) ),
@@ -60,4 +60,10 @@ def test_definition(text, expected):
     ("((if #f - +) 3 4)", ProcedureCall(Conditional(False, Variable('-'), Variable('+')), (3, 4))),
 ])
 def test_conditional(text, expected):
+    assert expected == translate(text).commands[0]
+
+@pytest.mark.parametrize("text,expected", [
+    ("(let ((x 3)) x)", Let(((Variable('x'), 3),), (Variable('x'),))),
+])
+def test_let(text, expected):
     assert expected == translate(text).commands[0]

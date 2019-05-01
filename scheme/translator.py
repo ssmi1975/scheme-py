@@ -1,6 +1,6 @@
 from arpeggio import visit_parse_tree, PTNodeVisitor
 from .parser import parse
-from .model import Identifier, ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program, Conditional, Quotation
+from .model import Identifier, ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program, Conditional, Quotation, Let
 import copy
 
 import pprint
@@ -60,15 +60,24 @@ class SchemeASTVisitor(PTNodeVisitor):
 
     def visit_lambda_expression(self, node, children):
         if len(children) == 1:
-            return Lambda((), to_tuple(children[0]))
+            return Lambda((), children[0])
         else:
-            return Lambda(to_tuple(children[0]), to_tuple(children[1]))
+            return Lambda(to_tuple(children[0]), children[1])
     
     def visit_formals(self, node, children):
         return children
     
     def visit_definition(self, node, children):
         return Definition(children[0], children[1])
+
+    def visit_let(self, node, children):
+        return Let(to_tuple(children[0]), children[1])
+
+    def visit_body(self, node, children):
+        return to_tuple(children)
+
+    def visit_binding_spec(self, node, children):
+        return (children[0], children[1])
 
     def visit_program(self, node, children):
         return Program(to_tuple(children))

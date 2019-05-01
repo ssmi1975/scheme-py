@@ -23,3 +23,5 @@ Program = namedtuple('Program', ('commands'))
 Conditional = namedtuple('Conditional', ("test", "consequent", "alternate"))
 
 Quotation = namedtuple('Quotation', "datum")
+
+Let = namedtuple('Let', ("bindings", "body"))
