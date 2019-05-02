@@ -6,7 +6,7 @@ class Context:
         self.parameters = parameters
     
     def bind(self, variable, value):
-        new_context = Context(self.bindings.copy(), self.parameters.copy())
+        new_context = self.copy()
         new_context.bindings[variable] = value
         return new_context
     
@@ -14,13 +14,18 @@ class Context:
         self.bindings[variable] = value
     
     def enter(self, parameter):
-        self.parameters.append(parameter)
-
-    def exit(self):
-        self.parameter.pop()
+        new_context = self.copy()
+        new_context.parameters.append(parameter)
+        return new_context
+    
+    def copy(self):
+        return Context(self.bindings.copy(), self.parameters.copy())
     
     def __repr__(self):
         return "Context(bindings={}, parameters={})".format(self.bindings, self.parameters)
+    
+    def __eq__(self, other):
+        return self.bindings == other.bindings and self.parameters == other.parameters
 
 
 Identifier = namedtuple('Identifier', 'name')
@@ -31,9 +36,10 @@ Variable = namedtuple('Variable', 'name')
 
 ProcedureCall = namedtuple('ProcedureCall', ('operator', 'operand'))
 
-Lambda = namedtuple('Lambda', ('formals', 'body'))
-
-StandardProcedure = namedtuple('StandardProcedure', 'name')
+Lambda = namedtuple('Lambda', ('formals', 'body', 'context'))
+SingleParameter = namedtuple('SingleParameter', 'name')
+FixedParameters = namedtuple('FixedParameters', 'names')
+ParametersWithLast = namedtuple('ParametersWithLast', ('names', 'last'))
 
 Vector = namedtuple('Vector', 'values')
 
@@ -48,3 +54,5 @@ Conditional = namedtuple('Conditional', ("test", "consequent", "alternate"))
 Quotation = namedtuple('Quotation', "datum")
 
 Let = namedtuple('Let', ("bindings", "body"))
+
+PyFunction = namedtuple('PyFunction', "function")

@@ -6,4 +6,5 @@ def translate(text):
 def execute(text):
     from .model import Context
     from .executor import execute
-    return execute(translate(text), Context())
+    from .stdproc import BINDINGS
+    return execute(translate(text), Context(bindings=BINDINGS))

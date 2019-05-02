@@ -38,9 +38,10 @@ def operator(): return expression
 def operand(): return expression
 
 def lambda_expression(): return "(", "lambda", formals, body, ")"
-def formals(): return [variable,
-         ("(", ZeroOrMore(variable), ")"),
-         ("(", OneOrMore(variable), '.', variable, ")")]
+def formals(): return [single_parameter, fixed_parameters, parameters_with_last]
+def single_parameter(): return variable
+def fixed_parameters(): return "(", ZeroOrMore(variable), ")"
+def parameters_with_last(): return "(", OneOrMore(variable), ".", variable, ")"
 def body(): return ZeroOrMore(definition), sequence
 def sequence(): return OneOrMore(expression)
 

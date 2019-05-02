@@ -1,6 +1,7 @@
 from arpeggio import visit_parse_tree, PTNodeVisitor
 from .parser import parse
-from .model import Identifier, ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program, Conditional, Quotation, Let
+from .model import (Identifier, ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program,
+ Conditional, Quotation, Let, SingleParameter, FixedParameters, ParametersWithLast, Context)
 import copy
 
 import pprint
@@ -49,8 +50,8 @@ class SchemeASTVisitor(PTNodeVisitor):
     def visit_quotation(self, node, children):
         return Quotation(children[0])
 
-    def visit_identifier(self, node, children):
-        return Identifier(node.value)
+    #def visit_identifier(self, node, children):
+        #return Identifier(node.value)
 
     def visit_procedure_call(self, node, children):
         if len(children) == 1:
@@ -59,16 +60,22 @@ class SchemeASTVisitor(PTNodeVisitor):
             return ProcedureCall(children[0], to_tuple(children[1:]))
 
     def visit_lambda_expression(self, node, children):
-        if len(children) == 1:
-            return Lambda((), children[0])
-        else:
-            return Lambda(to_tuple(children[0]), children[1])
+        return Lambda(children[0], children[1], Context())
     
     def visit_formals(self, node, children):
-        return children
+        return children[0]
     
+    def visit_single_parameter(self, node, children):
+        return SingleParameter(Variable(children[0]))
+
+    def visit_fixed_parameters(self, node, children):
+        return FixedParameters(to_tuple(children))
+
     def visit_definition(self, node, children):
         return Definition(children[0], children[1])
+
+    def visit_parameters_with_last(self, node, children):
+        return ParametersWithLast(to_tuple(children[:-1]), children[-1])
 
     def visit_let(self, node, children):
         return Let(to_tuple(children[0]), children[1])
