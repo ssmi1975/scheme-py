@@ -31,8 +31,8 @@ def test_procedure_call(text, expected):
     assert expected == translate(text).commands[0]
 
 @pytest.mark.parametrize("text,expected", [
-    ('(a)', ProcedureCall(Identifier('a'), ())),
-    ('(+ 1 2)', ProcedureCall(Identifier('+'), (1,2))),
+    ('(a)', ProcedureCall(Variable('a'), ())),
+    ('(+ 1 2)', ProcedureCall(Variable('+'), (1,2))),
 ])
 def test_procedure_call(text, expected):
     result = translate(text).commands[0]

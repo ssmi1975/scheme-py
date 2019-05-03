@@ -1,8 +1,8 @@
-from .model import Identifier, Symbol, Variable, Vector, Lambda, PyFunction, Context
+from .model import Symbol, Variable, Vector, Lambda, PyFunction, Context, SingleParameter, FixedParameters, ParametersWithLast
 import collections
 
 def eqv(left, right):
-    for t in (Symbol, Variable, int, StandardProcedure):
+    for t in (Symbol, Variable, int):
         if isinstance(left, t) and isinstance(right, t):
             return left == right
     if left == () and right == ():
@@ -22,20 +22,19 @@ def _assert_all_int(args):
     if not all((isinstance(arg, int) for arg in args)):
         raise(Exception("non-number value(s) are passed: {}".format(args)))
 
-def plus(*args):
+def plus(args):
     _assert_all_int(args)
     return sum(args)
 
-def minus(*args):
-    _assert_all_int(args)
-    if len(args) == 1:
-        return -1 * args[0]
-    if len(args) == 2:
-        return args[0] - args[1]
+def minus(first, *last):
+    assert type(first) == int
+    _assert_all_int(last)
+    if len(last) == 0:
+        return first
     else:
-        return args[0] - sum(args[1:])
+        return args[0] - sum(args)
 
-def _list(*args):
+def _list(args):
     return tuple(args)
 
 def _assert_pair(arg):
@@ -68,7 +67,7 @@ def cons(head, pair):
         pair = [pair]
     return tuple([head] + pair)
 
-def make_vector(*args):
+def make_vector(args):
     _assert_pair(args)
     return Vector(args)
 
@@ -88,19 +87,19 @@ def dummy(*args):
 
 
 BINDINGS = {
-    Variable("eqv?"): Lambda((Variable('left'),Variable('right')), (PyFunction(eqv),), Context()),
-    Variable("eq?"): Lambda((Variable('left'),Variable('right')), (PyFunction(eqv),), Context()),
-    Variable("equal?"): Lambda((Variable('left'),Variable('right')), (PyFunction(equal),), Context()),
-    Variable("number?"): Lambda((Variable('value'),), (PyFunction(number),), Context()),
-    Variable('='): Lambda((Variable('values')), (PyFunction(number_eq),), Context()),
-    Variable('+'): Lambda((Variable('args')), (PyFunction(plus),), Context()),
-    Variable('-'): Lambda((Variable('args')), (PyFunction(minus),), Context()),
-    Variable('>'): Lambda((Variable('left'),Variable('right')), (PyFunction(more_than),), Context()),
-    Variable('<'): Lambda((Variable('left'),Variable('right')), (PyFunction(less_than),), Context()),
-    Variable('list'): Lambda((Variable('args')), (PyFunction(_list),), Context()),
-    Variable('make-vector'): Lambda((Variable('args')), (PyFunction(make_vector),), Context()),
-    Variable('car'):Lambda((Variable('args'),), (PyFunction(car),), Context()),
-    Variable('cdr'): Lambda((Variable('args'),), (PyFunction(cdr),), Context()),
-    Variable('cons'): Lambda((Variable('head'),Variable('pair')), (PyFunction(cons),), Context()),
-    Variable('atom?'): Lambda((Variable('arg'),), (PyFunction(is_atom),), Context()),
+    Variable("eqv?"): Lambda(FixedParameters((Variable('left'),Variable('right'))), PyFunction(eqv), Context()),
+    Variable("eq?"): Lambda(FixedParameters((Variable('left'),Variable('right'))), PyFunction(eqv), Context()),
+    Variable("equal?"): Lambda(FixedParameters((Variable('left'),Variable('right'))), PyFunction(equal), Context()),
+    Variable("number?"): Lambda(FixedParameters((Variable('value'),)), PyFunction(number), Context()),
+    Variable('='): Lambda(SingleParameter(Variable('values')), PyFunction(number_eq), Context()),
+    Variable('+'): Lambda(SingleParameter(Variable('args')), PyFunction(plus), Context()),
+    Variable('-'): Lambda(ParametersWithLast(Variable('first'), Variable('last')), PyFunction(minus), Context()),
+    Variable('>'): Lambda(FixedParameters((Variable('left'),Variable('right'))), PyFunction(more_than), Context()),
+    Variable('<'): Lambda(FixedParameters((Variable('left'),Variable('right'))), PyFunction(less_than), Context()),
+    Variable('list'): Lambda(SingleParameter(Variable('args')), PyFunction(_list), Context()),
+    Variable('make-vector'): Lambda(SingleParameter(Variable('args')), PyFunction(make_vector), Context()),
+    Variable('car'):Lambda(FixedParameters((Variable('args'),)), PyFunction(car), Context()),
+    Variable('cdr'): Lambda(FixedParameters((Variable('args'),)), PyFunction(cdr), Context()),
+    Variable('cons'): Lambda(FixedParameters((Variable('head'),Variable('pair'))), PyFunction(cons), Context()),
+    Variable('atom?'): Lambda(FixedParameters((Variable('arg'),)), PyFunction(is_atom), Context()),
 }

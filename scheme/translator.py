@@ -1,6 +1,6 @@
 from arpeggio import visit_parse_tree, PTNodeVisitor
 from .parser import parse
-from .model import (Identifier, ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program,
+from .model import (ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program,
  Conditional, Quotation, Let, SingleParameter, FixedParameters, ParametersWithLast, Context)
 import copy
 

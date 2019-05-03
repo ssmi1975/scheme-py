@@ -1,11 +1,14 @@
 import pytest
 from scheme import translate
 from scheme.executor import execute
-from scheme.model import Variable, Symbol, Vector, Quotation, ProcedureCall, Context
+from scheme.model import Variable, Symbol, Vector, Quotation, ProcedureCall, Context, Lambda, SingleParameter, FixedParameters, ParametersWithLast
 from scheme.stdproc import BINDINGS
 
-def default_context():
-    return Context(bindings=BINDINGS)
+def default_context(extra_bindings={}):
+    c = Context(bindings=BINDINGS)
+    for k,v in extra_bindings.items():
+        c = c.bind(k, v)
+    return c
 
 @pytest.mark.parametrize("text,expected", [
     ("(quote a)", Symbol('a')),
@@ -32,6 +35,21 @@ def test_variable():
     context = default_context()
     result = execute(ast, context.bind(Variable("a"), 1))
     assert 1 == result
+
+@pytest.mark.parametrize("text,expected", [
+    ('(let ((x 1)) (lambda (y) (+ x y)))', Lambda(FixedParameters((Variable('y'),)),
+                                                  (ProcedureCall(Variable('+'), (Variable('x'), Variable('y'))),),
+                                                  default_context({Variable('x'):1}))),
+    ('(lambda (x y) x)', Lambda(FixedParameters((Variable('x'), Variable('y'))),
+                                (Variable('x'),),
+                                default_context())),
+    ('(lambda (x . y) x)', Lambda(ParametersWithLast((Variable('x'),), Variable('y')),
+                                  (Variable('x'),),
+                                  default_context())),
+])
+def test_lambda(text, expected):
+    context = default_context()
+    assert expected == execute(translate(text), default_context())
 
 @pytest.mark.parametrize("text,expected", [
     ("((lambda x (+ x 1)) 2)", 3),

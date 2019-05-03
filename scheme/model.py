@@ -28,8 +28,6 @@ class Context:
         return self.bindings == other.bindings and self.parameters == other.parameters
 
 
-Identifier = namedtuple('Identifier', 'name')
-
 Symbol = namedtuple('Symbol', 'name')
 
 Variable = namedtuple('Variable', 'name')
