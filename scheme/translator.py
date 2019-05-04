@@ -122,6 +122,12 @@ class SchemeASTVisitor(PTNodeVisitor):
     def visit_cond(self, node, children):
         return Cond(to_tuple(children))
 
+    def visit_and_(self, node, children):
+        return And(to_tuple(children))
+
+    def visit_or_(self, node, children):
+        return Or(to_tuple(children))
+
 VISITOR = SchemeASTVisitor(debug=False)
 def translate(tree):
     return visit_parse_tree(tree, VISITOR)

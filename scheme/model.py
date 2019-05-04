@@ -9,6 +9,8 @@ class Variable: pass
 class Quotation: pass
 class Conditional: pass
 class Cond: pass
+class Or: pass
+class And: pass
 Expression = Union[str, int, tuple, Lambda, Vector, Character, Variable, Quotation, Conditional, Cond]
 
 @dataclass()
@@ -108,6 +110,14 @@ class CondClause:
 @dataclass()
 class Cond:
     clauses: Tuple[CondClause]
+
+@dataclass()
+class And:
+    expressions: Tuple[Expression]
+
+@dataclass()
+class Or:
+    expressions: Tuple[Expression]
 
 @dataclass(frozen=True)
 class PyFunction:

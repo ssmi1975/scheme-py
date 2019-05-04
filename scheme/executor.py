@@ -62,7 +62,21 @@ def execute(obj, context:Context):
         # no match
         return ()
 
+    elif isinstance(obj, Or):
+        ret = False
+        for expression in obj.expressions:
+            ret = execute(expression, context)
+            if ret is not False:
+                return ret
+        return ret
                 
+    elif isinstance(obj, And):
+        ret = True
+        for expression in obj.expressions:
+            ret = execute(expression, context)
+            if ret is False:
+                return ret
+        return ret
 
     else:
         raise(Exception("unexpected object {} passed. context {}".format(obj, context)))

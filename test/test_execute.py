@@ -88,3 +88,17 @@ def test_set_(text, expected):
 def test_cond(text, expected):
     ast = translate(text)
     assert expected == execute(ast, default_context())
+
+@pytest.mark.parametrize("text,expected", [
+    ("(and (= 2 2) (> 2 1))", True),
+    ("(and (= 2 2) (< 2 1))", False),
+    ("(and 1 2 'c '(f g))", (Symbol("f"), Symbol("g"))),
+    ("(and)", True),
+    ("(or (= 2 2) (> 2 1))", True),
+    ("(or (= 2 2) (< 2 1))", True),
+    ("(or #f #f #f)", False),
+    #("(or (memq 'b '(a b c)) (/ 3 0))", (Symbol("b"), Symbol("c"))),     
+])
+def test_and_or(text, expected):
+    ast = translate(text)
+    assert expected == execute(ast, default_context())
