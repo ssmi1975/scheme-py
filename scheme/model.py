@@ -58,22 +58,11 @@ class ProcedureCall:
     operator: Lambda
     operand: tuple
 
-    def execute_closed_function(self, operator, context, execute):
-        if isinstance(operator.body, PyFunction):
-            formals = operator.formals
-            if isinstance(formals, SingleParameter):
-                return operator.body.function(context[formals.name])
-            elif isinstance(formals, FixedParameters):
-                return operator.body.function(**{k.name:context[k] for k in formals.names})
-            elif isinstance(formals, ParametersWithLast):
-                args = [context[k] for k in list(formals.names)]
-                args += context[formals.last]
-                print(args)
-                return operator.body.function(*args)
-            else:
-                raise(Exception("unexpected type {} as parameter definition".format(type(formals))))
+    def execute_closed_function(self, body, context, execute):
+        if isinstance(body, PyFunction):
+            return body.execute(context, execute)
         else:
-            results = [execute(command, context) for command in operator.body]
+            results = [execute(command, context) for command in body]
             return results[-1]
 
 
@@ -84,51 +73,72 @@ class ProcedureCall:
         if not isinstance(operator, Lambda):
             raise(Exception("undefined procedure {}".format(operator)))
 
-        inner_context = operator.context.copy()
         formals = operator.formals
-        if isinstance(formals, SingleParameter):
-            inner_context = inner_context.bind(formals.name, operand if len(operand) != 1 else operand[0])
-            return self.execute_closed_function(operator, inner_context, execute)
-        elif isinstance(formals, FixedParameters):
-            if len(operand) > len(formals.names):
-                raise(Exception("wrong number of arguments {} for {}".format(operand, self)))
-            for i,o in enumerate(operand):
-                inner_context = inner_context.bind(formals.names[i], o)
-            if len(operand) == len(formals.names):
-                return self.execute_closed_function(operator, inner_context, execute)
-            else:
-                # curry-ing
-                return execute(Lambda(FixedParameter(tuple(formals.names[len(operand):])), operator.body), inner_context)
-        elif isinstance(formals, ParametersWithLast):
-            print(operand)
-            if len(operand) < len(formals.names):
-                # curry-ing
-                for i,o in enumerate(operand):
-                    inner_context = inner_context.bind(formals.names[i], o)
-                return execute(Lambda(ParametersWithLast(tuple(formals.names[len(operand):]), formals.last), operator.body), inner_context)
-            else:
-                for i,name in enumerate(formals.names):
-                    inner_context = inner_context.bind(name, operand[i])
-                inner_context = inner_context.bind(formals.last, operand[len(formals.names):])
-                return self.execute_closed_function(operator, inner_context, execute)
+        inner_context = operator.context.copy()
+        inner_context = formals.bind_context(operand, inner_context)
+        if formals.is_closed(operand):
+            return self.execute_closed_function(operator.body, inner_context, execute)
         else:
-            raise(Exception("BUG: invalid parameter type: {}".format(type(formals))))
+            return Lambda(formals.curry(operand), operator.body, inner_context)
 
 
 @dataclass(frozen=True)
 class SingleParameter:
     name: str
 
+    def is_closed(self, operand):
+        return True
+
+    def bind_context(self, operand, context):
+        return context.bind(self.name, operand if len(operand) != 1 else operand[0])
+
+    def curry(self, operand):
+        raise(Exception("BUG: curry called for {}".format(self.__class__)))
+
 
 @dataclass(frozen=True)
 class FixedParameters:
     names: str
+
+    def is_closed(self, operand):
+        if len(operand) > len(self.names):
+            raise(Exception("wrong number of arguments {} for {}".format(operand, self)))
+        else:
+            return len(operand) == len(self.names)
+        
+    def bind_context(self, operand, context):
+        for i,o in enumerate(operand):
+            context = context.bind(self.names[i], o)
+        return context
+
+    def curry(self, operand):
+        return FixedParameter(tuple(self.names[len(operand):]))
 
 
 @dataclass(frozen=True)
 class ParametersWithLast:
     names: tuple
     last: str
+
+    def is_closed(self, operand):
+        return len(operand) >= len(self.names)
+
+    def bind_context(self, operand, context):
+        if len(operand) < len(self.names):
+            for i,o in enumerate(operand):
+                context = context.bind(self.names[i], o)
+            return context
+        else:
+            for i,name in enumerate(self.names):
+                context = context.bind(name, operand[i])
+            context = context.bind(self.last, operand[len(self.names):])
+            return context
+
+    def curry(self, operand):
+        return ParametersWithLast(tuple(self.names[len(operand):]))
+
+    def arg_for_pyfunction(self, context):
+        return context[self.name]
 
 
 @dataclass(frozen=True)
@@ -249,4 +259,17 @@ class Or:
  
 @dataclass(frozen=True)
 class PyFunction:
-   function: Callable[..., Expression]
+    function: Callable[..., Expression]
+    formals: tuple = ()
+
+    def execute(self, context, execute):
+        if isinstance(self.formals, SingleParameter):
+            return self.function(context[self.formals.name])
+        elif isinstance(self.formals, FixedParameters):
+            return self.function(**{k.name:context[k] for k in self.formals.names})
+        elif isinstance(self.formals, ParametersWithLast):
+            args = [context[k] for k in list(self.formals.names)]
+            args += context[self.formals.last]
+            return self.function(*args)
+        else:
+            raise(Exception("unexpected type {} as parameter definition".format(type(self.formals))))

@@ -87,24 +87,34 @@ def less_than(left:int, right:int):
 def quote(datum):
     return datum
 
+def _t(*args):
+    # tuple of variables
+    return tuple(Variable(v) for v in args)
+
+def _v(name):
+    # variable with given name
+    return Variable(name)
+
+def py_function(func, formals):
+    return Lambda(formals, PyFunction(func, formals), Context())
 
 BINDINGS = {
-    Variable("eqv?"): Lambda(FixedParameters((Variable('left'),Variable('right'))), PyFunction(eqv), Context()),
-    Variable("eq?"): Lambda(FixedParameters((Variable('left'),Variable('right'))), PyFunction(eqv), Context()),
-    Variable("equal?"): Lambda(FixedParameters((Variable('left'),Variable('right'))), PyFunction(equal), Context()),
-    Variable("number?"): Lambda(FixedParameters((Variable('value'),)), PyFunction(number), Context()),
-    Variable('='): Lambda(SingleParameter(Variable('values')), PyFunction(number_eq), Context()),
-    Variable('+'): Lambda(SingleParameter(Variable('args')), PyFunction(plus), Context()),
-    Variable('-'): Lambda(ParametersWithLast((Variable('first'),), Variable('last')), PyFunction(minus), Context()),
-    Variable('>'): Lambda(FixedParameters((Variable('left'),Variable('right'))), PyFunction(more_than), Context()),
-    Variable('<'): Lambda(FixedParameters((Variable('left'),Variable('right'))), PyFunction(less_than), Context()),
-    Variable('list'): Lambda(SingleParameter(Variable('args')), PyFunction(_list), Context()),
-    Variable('make-vector'): Lambda(SingleParameter(Variable('args')), PyFunction(make_vector), Context()),
-    Variable('car'):Lambda(FixedParameters((Variable('args'),)), PyFunction(car), Context()),
-    Variable('cdr'): Lambda(FixedParameters((Variable('args'),)), PyFunction(cdr), Context()),
-    Variable('cons'): Lambda(FixedParameters((Variable('head'),Variable('pair'))), PyFunction(cons), Context()),
-    Variable('atom?'): Lambda(FixedParameters((Variable('arg'),)), PyFunction(is_atom), Context()),
-    Variable('quote'): Lambda(FixedParameters((Variable('datum'),)), PyFunction(quote), Context()),
+    Variable("eqv?"): py_function(eqv, FixedParameters(_t('left', 'right'))),
+    Variable("eq?"): py_function(eqv, FixedParameters(_t('left', 'right'))),
+    Variable("equal?"): py_function(equal, FixedParameters(_t('left', 'right'))),
+    Variable("number?"): py_function(number, FixedParameters( _t('value'))),
+    Variable('='): py_function(number_eq, SingleParameter(_v('values'))),
+    Variable('+'): py_function(plus, SingleParameter(_v('args'))),
+    Variable('-'): py_function(minus, ParametersWithLast( _t('first'), _v('last'))),
+    Variable('>'): py_function(more_than, FixedParameters( _t('left' ,'right'))),
+    Variable('<'): py_function(less_than, FixedParameters( _t('left', 'right'))),
+    Variable('list'): py_function(_list, SingleParameter(_v('args'))),
+    Variable('make-vector'): py_function(make_vector, SingleParameter(_v('args'))),
+    Variable('car'): py_function(car, FixedParameters( _t('args'))),
+    Variable('cdr'): py_function(cdr, FixedParameters( _t('args'))),
+    Variable('cons'): py_function(cons, FixedParameters( _t('head','pair'))),
+    Variable('atom?'): py_function(is_atom, FixedParameters( _t('arg'))),
+    Variable('quote'): py_function(quote, FixedParameters( _t('datum'))),
 }
 
 # vim: expandtab sw=4 sts=4
