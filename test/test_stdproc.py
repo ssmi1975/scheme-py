@@ -44,6 +44,9 @@ def test_sum():
 @pytest.mark.parametrize("text, expected", [
     ('(= 2 2)', True),
     ('(= 0)', True),
+    ('(= 1 2)', False),
+    ('(= 1 2 3)', False),
+    ('(= 2 2 2)', True),
 ])
 def test_number_eq(text, expected):
     assert expected == execute(text)

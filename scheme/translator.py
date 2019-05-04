@@ -110,6 +110,18 @@ class SchemeASTVisitor(PTNodeVisitor):
     def visit_set_(self, node, children):
         return Set_(children[0], children[1])
 
+    def visit_cond_clause(self, node, children):
+        return CondClause(children[0], tuple(children[1:]))
+
+    def visit_cond_call(self, node, children):
+        return CondClause(children[0], tuple(children[1:]), True)
+
+    def visit_else_clause(self, node, children):
+        return CondClause(True, to_tuple(children))
+
+    def visit_cond(self, node, children):
+        return Cond(to_tuple(children))
+
 VISITOR = SchemeASTVisitor(debug=False)
 def translate(tree):
     return visit_parse_tree(tree, VISITOR)

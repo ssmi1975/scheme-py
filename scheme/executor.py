@@ -47,6 +47,23 @@ def execute(obj, context:Context):
     elif isinstance(obj, Set_):
         context.update_bindings(obj.variable, execute(obj.expression, context))
     
+    elif isinstance(obj, Cond):
+        for clause in obj.clauses:
+            ret = execute(clause.test, context)
+            if ret is False:
+                continue
+            if len(clause.expressions) == 0:
+                return ret
+            if clause.is_call:
+                return execute(ProcedureCall(clause.expressions[0], (ret,)), context)
+            else:
+                results = [execute(e, context) for e in clause.expressions]
+                return results[-1]
+        # no match
+        return ()
+
+                
+
     else:
         raise(Exception("unexpected object {} passed. context {}".format(obj, context)))
 

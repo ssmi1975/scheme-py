@@ -13,3 +13,6 @@ def default_context(extra_bindings={}):
         c = c.bind(k, v)
     return c
 
+def t_(*args):
+    return args
+    

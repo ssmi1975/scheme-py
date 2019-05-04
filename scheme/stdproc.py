@@ -1,4 +1,4 @@
-from .model import Symbol, Variable, Vector, Lambda, PyFunction, Context, SingleParameter, FixedParameters, ParametersWithLast
+from .model import *
 import collections
 
 def eqv(left, right):
@@ -10,23 +10,26 @@ def eqv(left, right):
     return left is right
 
 def equal(left, right):
+    print("{}, {}".format(left, right))
     return left == right
 
 def number(value):
     return type(value) == int
 
-def number_eq(*values):
+def number_eq(values):
+    if type(values) == int:
+        return True
     return all((values[0] == v for v in values))
 
 def _assert_all_int(args):
     if not all((isinstance(arg, int) for arg in args)):
         raise(Exception("non-number value(s) are passed: {}".format(args)))
 
-def plus(args):
+def plus(args:tuple):
     _assert_all_int(args)
     return sum(args)
 
-def minus(first, *last):
+def minus(first:int, *last:tuple):
     assert type(first) == int
     _assert_all_int(last)
     if len(last) == 0:
@@ -50,11 +53,11 @@ def _assert_int(arg):
     if not type(arg) == int:
         raise(Exception("expecting int, but got {}; value {} ".format(type(arg), arg)))
 
-def car(args):
+def car(args:tuple):
     _assert_non_empty_pair(args)
     return tuple(args[0])
 
-def cdr(args):
+def cdr(args:tuple):
     _assert_pair(args)
     _assert_non_empty_pair(args)
     return tuple(args[1:])
@@ -62,31 +65,27 @@ def cdr(args):
 def is_atom(arg):
     return type(arg) in (int, str, Symbol)
 
-def cons(head, pair):
+def cons(head, pair:tuple):
     if is_atom(pair):
         pair = [pair]
     return tuple([head] + pair)
 
-def make_vector(args):
+def make_vector(args:tuple):
     _assert_pair(args)
     return Vector(args)
 
-def more_than(left, right):
+def more_than(left:int, right:int):
     _assert_int(left)
     _assert_int(right)
     return left > right
 
-def less_than(left, right):
+def less_than(left:int, right:int):
     _assert_int(left)
     _assert_int(right)
     return left < right
 
 def quote(datum):
     return datum
-
-DUMMY = "dummy"
-def dummy(*args):
-    return DUMMY
 
 
 BINDINGS = {
@@ -107,3 +106,5 @@ BINDINGS = {
     Variable('atom?'): Lambda(FixedParameters((Variable('arg'),)), PyFunction(is_atom), Context()),
     Variable('quote'): Lambda(FixedParameters((Variable('datum'),)), PyFunction(quote), Context()),
 }
+
+# vim: expandtab sw=4 sts=4

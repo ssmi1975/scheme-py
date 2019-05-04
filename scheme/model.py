@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Callable, Union
+from typing import Callable, Union, Tuple
 
 # type alias
 class Lambda: pass
@@ -8,8 +8,8 @@ class Character: pass
 class Variable: pass
 class Quotation: pass
 class Conditional: pass
-class SchemeList: pass
-Expression = Union[str, int, tuple, Lambda, Vector, Character, Variable, Quotation, Conditional]
+class Cond: pass
+Expression = Union[str, int, tuple, Lambda, Vector, Character, Variable, Quotation, Conditional, Cond]
 
 @dataclass()
 class Context:
@@ -98,6 +98,16 @@ class Let:
 class Set_:
     variable: Variable
     expression: Expression
+
+@dataclass
+class CondClause:
+    test: Expression
+    expressions: Tuple[Expression] = ()
+    is_call: bool = False
+
+@dataclass()
+class Cond:
+    clauses: Tuple[CondClause]
 
 @dataclass(frozen=True)
 class PyFunction:

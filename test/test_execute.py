@@ -2,7 +2,7 @@ import pytest
 from scheme import translate
 from scheme.executor import execute
 from scheme.model import Variable, Symbol, Vector, ProcedureCall, Context, Lambda, SingleParameter, FixedParameters, ParametersWithLast
-from util import default_context, procedure, quote
+from util import default_context, procedure, quote, t_
 
 @pytest.mark.parametrize("text,expected", [
     ("(quote a)", Symbol('a')),
@@ -31,14 +31,14 @@ def test_variable():
     assert 1 == result
 
 @pytest.mark.parametrize("text,expected", [
-    ('(let ((x 1)) (lambda (y) (+ x y)))', Lambda(FixedParameters((Variable('y'),)),
-                                                  (ProcedureCall(Variable('+'), (Variable('x'), Variable('y'))),),
+    ('(let ((x 1)) (lambda (y) (+ x y)))', Lambda(FixedParameters(t_(Variable('y'))),
+                                                  t_(ProcedureCall(Variable('+'), t_(Variable('x'), Variable('y')))),
                                                   default_context({Variable('x'):1}))),
-    ('(lambda (x y) x)', Lambda(FixedParameters((Variable('x'), Variable('y'))),
-                                (Variable('x'),),
+    ('(lambda (x y) x)', Lambda(FixedParameters(t_(Variable('x'), Variable('y'))),
+                                t_(Variable('x')),
                                 default_context())),
-    ('(lambda (x . y) x)', Lambda(ParametersWithLast((Variable('x'),), Variable('y')),
-                                  (Variable('x'),),
+    ('(lambda (x . y) x)', Lambda(ParametersWithLast(t_(Variable('x')), Variable('y')),
+                                  t_(Variable('x')),
                                   default_context())),
 ])
 def test_lambda(text, expected):
@@ -49,7 +49,7 @@ def test_lambda(text, expected):
     ("((lambda x (+ x 1)) 2)", 3),
     ("((lambda (x) (+ x x)) 4)", 8),
     ("(define reverse-subtract (lambda (x y) (- y x))) (reverse-subtract 7 10) ", 3),
-    #("(define add4 (let ((x 4)) (lambda (y) (+ x y)))) (add4 6)  ", 10),
+    ("(define add4 (let ((x 4)) (lambda (y) (+ x y)))) (add4 6)  ", 10),
 ])
 def test_procedure(text, expected):
     context = default_context()
@@ -75,5 +75,16 @@ def test_conditional(text, expected):
     ("(define x 1) (set! x 2) (+ x 1)", 3),
 ])
 def test_set_(text, expected):
+    ast = translate(text)
+    assert expected == execute(ast, default_context())
+
+
+@pytest.mark.parametrize("text,expected", [
+    ( "(cond ((= 2 1) 'a))", ()),
+    ( "(cond ((= 1 1) 'a))", Symbol("a")),
+    ( "(cond ((= 2 1) 'a) (else 'b))", Symbol("b")),
+    ( "(cond ((+ 2 1) => (lambda x (+ 4 x))))", 7)
+])
+def test_cond(text, expected):
     ast = translate(text)
     assert expected == execute(ast, default_context())
