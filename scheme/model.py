@@ -14,22 +14,17 @@ class And: pass
 Expression = Union[str, int, tuple, Lambda, Vector, Character, Variable, Quotation, Conditional, Cond]
 
 
-@dataclass()
-class Context:
-    bindings: dict
-    def __init__(self, bindings={}):
-        self.bindings = bindings
-    
+class Context(dict):
     def bind(self, variable, value):
         new_context = self.copy()
-        new_context.bindings[variable] = value
+        new_context[variable] = value
         return new_context
     
     def update_bindings(self, variable, value):
-        self.bindings[variable] = value
-   
+        self[variable] = value
+    
     def copy(self):
-        return Context(self.bindings.copy())
+        return Context(self)
 
 
 @dataclass(frozen=True)
@@ -42,9 +37,9 @@ class Variable:
     name: str
 
     def execute(self, context, execute):
-        if not self in context.bindings:
+        if not self in context:
             raise(Exception("variable {} not found".format(self.name)))
-        return context.bindings[self]
+        return context[self]
 
 
 @dataclass
@@ -67,12 +62,12 @@ class ProcedureCall:
         if isinstance(operator.body, PyFunction):
             formals = operator.formals
             if isinstance(formals, SingleParameter):
-                return operator.body.function(context.bindings[formals.name])
+                return operator.body.function(context[formals.name])
             elif isinstance(formals, FixedParameters):
-                return operator.body.function(**{k.name:context.bindings[k] for k in formals.names})
+                return operator.body.function(**{k.name:context[k] for k in formals.names})
             elif isinstance(formals, ParametersWithLast):
-                args = [context.bindings[k] for k in list(formals.names)]
-                args += context.bindings[formals.last]
+                args = [context[k] for k in list(formals.names)]
+                args += context[formals.last]
                 print(args)
                 return operator.body.function(*args)
             else:

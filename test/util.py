@@ -8,7 +8,7 @@ def quote(args):
     return procedure('quote', args)
 
 def default_context(extra_bindings={}):
-    c = Context(bindings=BINDINGS)
+    c = Context(BINDINGS)
     for k,v in extra_bindings.items():
         c = c.bind(k, v)
     return c
