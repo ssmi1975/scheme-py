@@ -13,6 +13,7 @@ Expression = Union[str, int, tuple, Lambda, Vector, Character, Variable, Quotati
 
 @dataclass()
 class Context:
+    bindings: dict
     def __init__(self, bindings={}):
         self.bindings = bindings
     

@@ -32,7 +32,7 @@ def minus(first, *last):
     if len(last) == 0:
         return first
     else:
-        return args[0] - sum(args)
+        return first - sum(last)
 
 def _list(*args):
     return tuple(args)
@@ -96,7 +96,7 @@ BINDINGS = {
     Variable("number?"): Lambda(FixedParameters((Variable('value'),)), PyFunction(number), Context()),
     Variable('='): Lambda(SingleParameter(Variable('values')), PyFunction(number_eq), Context()),
     Variable('+'): Lambda(SingleParameter(Variable('args')), PyFunction(plus), Context()),
-    Variable('-'): Lambda(ParametersWithLast(Variable('first'), Variable('last')), PyFunction(minus), Context()),
+    Variable('-'): Lambda(ParametersWithLast((Variable('first'),), Variable('last')), PyFunction(minus), Context()),
     Variable('>'): Lambda(FixedParameters((Variable('left'),Variable('right'))), PyFunction(more_than), Context()),
     Variable('<'): Lambda(FixedParameters((Variable('left'),Variable('right'))), PyFunction(less_than), Context()),
     Variable('list'): Lambda(SingleParameter(Variable('args')), PyFunction(_list), Context()),

@@ -57,7 +57,9 @@ def execute_closed_function(operator, context):
         elif isinstance(formals, FixedParameters):
             return operator.body.function(**{k.name:context.bindings[k] for k in formals.names})
         elif isinstance(formals, ParametersWithLast):
-            args = {k.name:context.bindings[k] for k in formals.names + [formals.last]}
+            args = [context.bindings[k] for k in list(formals.names)]
+            args += context.bindings[formals.last]
+            print(args)
             return operator.body.function(*args)
         else:
             raise(Exception("unexpected type {} as parameter definition".format(type(formals))))
@@ -88,6 +90,17 @@ def execute_procedure(proc, context):
             # curry-ing
             return execute(Lambda(FixedParameter(tuple(formals.names[len(operand):])), operator.body), inner_context)
     elif isinstance(formals, ParametersWithLast):
-        raise(NotImplementedError(""))
+        print(operand)
+        if len(operand) < len(formals.names):
+            # curry-ing
+            for i,o in enumerate(operand):
+                inner_context = inner_context.bind(formals.names[i], o)
+            return execute(Lambda(ParametersWithLast(tuple(formals.names[len(operand):]), formals.last), operator.body), inner_context)
+        else:
+            for i,name in enumerate(formals.names):
+                inner_context = inner_context.bind(name, operand[i])
+            inner_context = inner_context.bind(formals.last, operand[len(formals.names):])
+            print(inner_context)
+            return execute_closed_function(operator, inner_context)
     else:
         raise(Exception("BUG: invalid parameter type: {}".format(type(formals))))

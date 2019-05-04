@@ -56,6 +56,9 @@ def test_procedure_call(text, expected):
     ('(lambda (x . y) x)', Lambda(ParametersWithLast((Variable('x'),), Variable('y')),
                                   (Variable('x'),),
                                   Context())),
+    ('(lambda (x y . z) x)', Lambda(ParametersWithLast((Variable('x'),Variable('y')), Variable('z')),
+                                  (Variable('x'),),
+                                  Context())),
 ])
 def test_lambda(text, expected):
     result = translate(text).commands[0]
