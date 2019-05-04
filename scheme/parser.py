@@ -20,11 +20,11 @@ def character(): return r"#\\", _(r".")
 def string(): return '"', _(r'[^"\\]*'), '"'
 
 # 7.1.2 External representations
-def datum(): return [simple_datum, complex_datum]
+def datum(): return [simple_datum, complex_datum, quotation]
 def simple_datum(): return [boolean, number, character, string, symbol]
 def symbol(): return identifier
 def complex_datum(): return [_list, vector]
-def _list(): return  [("(", ZeroOrMore(datum), ")"), ("(", OneOrMore(datum), ".", datum, ")"), abbreviation]
+def _list(): return  [("(", ZeroOrMore(datum), ")"), ("(", OneOrMore(datum), ".", datum, ")")] #, abbreviation]
 def abbreviation(): return abbrev_prefix, datum
 def abbrev_prefix(): return  ["'" , "`" , "," , ",@"]
 def vector(): return  "#(", ZeroOrMore(datum), ")"

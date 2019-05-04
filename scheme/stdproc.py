@@ -34,7 +34,7 @@ def minus(first, *last):
     else:
         return args[0] - sum(args)
 
-def _list(args):
+def _list(*args):
     return tuple(args)
 
 def _assert_pair(arg):
@@ -81,6 +81,9 @@ def less_than(left, right):
     _assert_int(right)
     return left < right
 
+def quote(datum):
+    return datum
+
 DUMMY = "dummy"
 def dummy(*args):
     return DUMMY
@@ -102,4 +105,5 @@ BINDINGS = {
     Variable('cdr'): Lambda(FixedParameters((Variable('args'),)), PyFunction(cdr), Context()),
     Variable('cons'): Lambda(FixedParameters((Variable('head'),Variable('pair'))), PyFunction(cons), Context()),
     Variable('atom?'): Lambda(FixedParameters((Variable('arg'),)), PyFunction(is_atom), Context()),
+    Variable('quote'): Lambda(FixedParameters((Variable('datum'),)), PyFunction(quote), Context()),
 }

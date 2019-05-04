@@ -16,8 +16,6 @@ def execute(obj, context:Context):
         return execute_procedure(obj, context)
 
     elif isinstance(obj, Variable):
-        if obj in context.parameters:
-            return obj
         if not obj in context.bindings:
             raise(Exception("variable {} not found".format(obj.name)))
         return context.bindings[obj]
@@ -35,9 +33,9 @@ def execute(obj, context:Context):
     elif isinstance(obj, Conditional):
         test = execute(obj.test, context)
         if test != False:
-            return execute(obj.consequent, {})
+            return execute(obj.consequent, context)
         else:
-            return execute(obj.alternate, {})
+            return execute(obj.alternate, context)
 
     elif isinstance(obj, Quotation):
         return obj.datum

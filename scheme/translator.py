@@ -1,13 +1,20 @@
 from arpeggio import visit_parse_tree, PTNodeVisitor
 from .parser import parse
 from .model import (ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program,
- Conditional, Quotation, Let, SingleParameter, FixedParameters, ParametersWithLast, Context)
+ Conditional, Quotation, Let, SingleParameter, FixedParameters, ParametersWithLast, Context, SchemeList)
 import copy
 
 import pprint
 
+def is_iterable(value):
+    try:
+        iter(value)
+        return True
+    except TypeError:
+        return False
+    
 def to_tuple(value):
-    if isinstance(value, list):
+    if is_iterable(value) and not isinstance(value, str):
         return tuple(value)
     return (value,)
 
@@ -16,7 +23,6 @@ def list_to_tuple(value):
     if isinstance(value, list):
         return tuple(value)
     return value
-
 
 class SchemeASTVisitor(PTNodeVisitor):
     def __init__(self, context={}, **kwargs):
@@ -42,16 +48,23 @@ class SchemeASTVisitor(PTNodeVisitor):
         return Variable(node.value)
 
     def visit__list(self, node, children):
-        return to_tuple(children)
+        return tuple(children)
 
     def visit_vector(self, node, children):
         return Vector(to_tuple(children))
 
     def visit_quotation(self, node, children):
-        return Quotation(children[0])
-
-    #def visit_identifier(self, node, children):
-        #return Identifier(node.value)
+        datum = children[0]
+        if is_iterable(datum) and len(children[0]) == 0:
+            # empty list
+            return ProcedureCall(Variable('quote'), ((),))
+        elif type(datum) in (bool, int, str, Character, Symbol, Vector, ProcedureCall):
+            # simple value
+            return ProcedureCall(Variable('quote'), (datum,))
+        elif type(datum) in (list, tuple):
+            return ProcedureCall(Variable('quote'), (to_tuple(datum),))
+        else:
+            raise(Exception("unexpected value {} (type={}) passed".format(datum, type(datum))))
 
     def visit_procedure_call(self, node, children):
         if len(children) == 1:
@@ -78,7 +91,7 @@ class SchemeASTVisitor(PTNodeVisitor):
         return ParametersWithLast(to_tuple(children[:-1]), children[-1])
 
     def visit_let(self, node, children):
-        return Let(to_tuple(children[0]), children[1])
+        return Let(to_tuple(children[:-1]), children[-1])
 
     def visit_body(self, node, children):
         return to_tuple(children)
@@ -95,8 +108,11 @@ class SchemeASTVisitor(PTNodeVisitor):
         else:
             return Conditional(children[0], children[1], children[2])
 
-
 VISITOR = SchemeASTVisitor(debug=False)
 def translate(tree):
     return visit_parse_tree(tree, VISITOR)
 
+
+if __name__ == '__main__':
+    from scheme.parser import parse
+    translate(parse('(let ((x 3)) x)'))

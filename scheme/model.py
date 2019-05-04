@@ -1,9 +1,20 @@
-from collections import namedtuple
+from dataclasses import dataclass
+from typing import Callable, Union
 
+# type alias
+class Lambda: pass
+class Vector: pass
+class Character: pass
+class Variable: pass
+class Quotation: pass
+class Conditional: pass
+class SchemeList: pass
+Expression = Union[str, int, tuple, Lambda, Vector, Character, Variable, Quotation, Conditional]
+
+@dataclass()
 class Context:
-    def __init__(self, bindings={}, parameters=[]):
+    def __init__(self, bindings={}):
         self.bindings = bindings
-        self.parameters = parameters
     
     def bind(self, variable, value):
         new_context = self.copy()
@@ -12,45 +23,76 @@ class Context:
     
     def update_bindings(self, variable, value):
         self.bindings[variable] = value
-    
-    def enter(self, parameter):
-        new_context = self.copy()
-        new_context.parameters.append(parameter)
-        return new_context
-    
+   
     def copy(self):
-        return Context(self.bindings.copy(), self.parameters.copy())
-    
-    def __repr__(self):
-        return "Context(bindings={}, parameters={})".format(self.bindings, self.parameters)
-    
-    def __eq__(self, other):
-        return self.bindings == other.bindings and self.parameters == other.parameters
+        return Context(self.bindings.copy())
 
 
-Symbol = namedtuple('Symbol', 'name')
+@dataclass(frozen=True)
+class Symbol:
+   name: str
 
-Variable = namedtuple('Variable', 'name')
+@dataclass(frozen=True)
+class Variable:
+   name: str
 
-ProcedureCall = namedtuple('ProcedureCall', ('operator', 'operand'))
+@dataclass
+class Lambda:
+    formals: tuple
+    body: tuple
+    context: Context
 
-Lambda = namedtuple('Lambda', ('formals', 'body', 'context'))
-SingleParameter = namedtuple('SingleParameter', 'name')
-FixedParameters = namedtuple('FixedParameters', 'names')
-ParametersWithLast = namedtuple('ParametersWithLast', ('names', 'last'))
+@dataclass(frozen=True)
+class ProcedureCall:
+    operator: Lambda
+    operand: tuple
 
-Vector = namedtuple('Vector', 'values')
+@dataclass(frozen=True)
+class SingleParameter:
+    name: str
 
-Character = namedtuple('Character', 'value')
+@dataclass(frozen=True)
+class FixedParameters:
+    names: str
 
-Definition = namedtuple('Definition', ('variable', 'expression'))
+@dataclass(frozen=True)
+class ParametersWithLast:
+   names: tuple
+   last: str
 
-Program = namedtuple('Program', ('commands'))
+@dataclass(frozen=True)
+class Vector:
+    values: tuple
 
-Conditional = namedtuple('Conditional', ("test", "consequent", "alternate"))
+@dataclass(frozen=True)
+class Character:
+    value: str
 
-Quotation = namedtuple('Quotation', "datum")
 
-Let = namedtuple('Let', ("bindings", "body"))
+@dataclass
+class Definition:
+   variable: Variable
+   expression : Expression
 
-PyFunction = namedtuple('PyFunction', "function")
+@dataclass
+class Program:
+   commands: tuple
+
+@dataclass
+class Conditional:
+    test: Expression
+    consequent: Expression
+    alternate: Expression
+
+@dataclass
+class Quotation:
+    datum: Expression
+
+@dataclass
+class Let:
+    bindings: tuple
+    body: Expression
+
+@dataclass(frozen=True)
+class PyFunction:
+   function: Callable[..., Expression]

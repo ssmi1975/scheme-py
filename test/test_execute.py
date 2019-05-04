@@ -1,14 +1,8 @@
 import pytest
 from scheme import translate
 from scheme.executor import execute
-from scheme.model import Variable, Symbol, Vector, Quotation, ProcedureCall, Context, Lambda, SingleParameter, FixedParameters, ParametersWithLast
-from scheme.stdproc import BINDINGS
-
-def default_context(extra_bindings={}):
-    c = Context(bindings=BINDINGS)
-    for k,v in extra_bindings.items():
-        c = c.bind(k, v)
-    return c
+from scheme.model import Variable, Symbol, Vector, ProcedureCall, Context, Lambda, SingleParameter, FixedParameters, ParametersWithLast
+from util import default_context, procedure, quote
 
 @pytest.mark.parametrize("text,expected", [
     ("(quote a)", Symbol('a')),
@@ -19,7 +13,7 @@ def default_context(extra_bindings={}):
     ("'()", ()),
     ("'(+ 1 2)", (Symbol('+'), 1, 2)),
     ("'(quote a)", (Symbol('quote'), Symbol('a'))),
-    ("''a", Quotation(Symbol('a'))),
+    ("''a", (Symbol('a'))),
     ("'\"abc\"", "abc"),
     ("\"abc\"", "abc"),
     ("'145932", 145932),
