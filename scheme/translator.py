@@ -1,7 +1,6 @@
 from arpeggio import visit_parse_tree, PTNodeVisitor
 from .parser import parse
-from .model import (ProcedureCall, Symbol, Variable, Lambda, Character, Vector, Definition, Program,
- Conditional, Quotation, Let, SingleParameter, FixedParameters, ParametersWithLast, Context, SchemeList)
+from .model import *
 import copy
 
 import pprint
@@ -107,6 +106,9 @@ class SchemeASTVisitor(PTNodeVisitor):
             return Conditional(children[0], children[1],())
         else:
             return Conditional(children[0], children[1], children[2])
+
+    def visit_set_(self, node, children):
+        return Set_(children[0], children[1])
 
 VISITOR = SchemeASTVisitor(debug=False)
 def translate(tree):

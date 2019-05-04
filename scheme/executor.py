@@ -1,5 +1,4 @@
-from .model import (ProcedureCall, Variable, Lambda, Symbol, Definition, Program, Conditional, Vector,
- Quotation, Context, Let, PyFunction, SingleParameter, FixedParameters, ParametersWithLast)
+from .model import *
 
 def execute(obj, context:Context):
     for t in (int, str, Symbol, Vector):
@@ -44,6 +43,12 @@ def execute(obj, context:Context):
         for var, value in obj.bindings:
             context = context.bind(var, execute(value, context))
         return execute(obj.body, context)[-1]
+
+    elif isinstance(obj, Set_):
+        context.update_bindings(obj.variable, execute(obj.expression, context))
+    
+    else:
+        raise(Exception("unexpected object {} passed. context {}".format(obj, context)))
 
 def execute_lambda(lambda_def:Lambda, context):
     # capture variables (closure)

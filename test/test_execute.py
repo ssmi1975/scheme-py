@@ -70,3 +70,10 @@ def test_definition():
 def test_conditional(text, expected):
     ast = translate(text)
     assert expected == execute(ast, default_context())
+
+@pytest.mark.parametrize("text,expected", [
+    ("(define x 1) (set! x 2) (+ x 1)", 3),
+])
+def test_set_(text, expected):
+    ast = translate(text)
+    assert expected == execute(ast, default_context())

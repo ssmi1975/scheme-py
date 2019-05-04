@@ -46,8 +46,9 @@ def body(): return ZeroOrMore(definition), sequence
 def sequence(): return OneOrMore(expression)
 
 def conditional(): return "(", "if", expression, expression, Optional(expression), ")"
-def derived_expression(): return [let]
+def derived_expression(): return [let, set_,]
 def let(): return "(", "let", "(", ZeroOrMore(binding_spec), ")", body, ")"
+def set_(): return "(", "set!", variable, expression, ")"
 def binding_spec(): return "(", variable, expression, ")"
 #def cond_simple(): return "(", "cond", OneOrMore(), ")"
 

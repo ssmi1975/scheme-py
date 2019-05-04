@@ -85,3 +85,9 @@ def test_conditional(text, expected):
 ])
 def test_let(text, expected):
     assert expected == translate(text).commands[0]
+
+@pytest.mark.parametrize("text,expected", [
+    ("(set! x 1)", Set_(Variable("x"), 1)),
+])
+def test_set_(text, expected):
+    assert expected == translate(text).commands[0]

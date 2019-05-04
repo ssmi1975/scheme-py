@@ -94,6 +94,11 @@ class Let:
     bindings: tuple
     body: Expression
 
+@dataclass
+class Set_:
+    variable: Variable
+    expression: Expression
+
 @dataclass(frozen=True)
 class PyFunction:
    function: Callable[..., Expression]
