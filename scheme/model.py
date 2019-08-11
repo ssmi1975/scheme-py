@@ -1,3 +1,4 @@
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import Callable, Union, Tuple
 
@@ -11,8 +12,9 @@ class Conditional: pass
 class Cond: pass
 class Or: pass
 class And: pass
-Expression = Union[str, int, tuple, Lambda, Vector, Character, Variable, Quotation, Conditional, Cond]
 
+
+Expression = Union[str, int, tuple, Lambda, Vector, Character, Variable, Quotation, Conditional, Cond]
 
 class Context(dict):
     def bind(self, variable, value):
@@ -273,3 +275,38 @@ class PyFunction:
             return self.function(*args)
         else:
             raise(Exception("unexpected type {} as parameter definition".format(type(self.formals))))
+
+@dataclass(frozen=True)
+class Ellipsis:
+    name: str = "..."
+
+@dataclass(frozen=True)
+class PatternDatum:
+    value: Union[int, Character, str, bool]
+
+@dataclass(frozen=True)
+class Template:
+    children: Tuple[Union[PatternDatum, Symbol, ]] = ()
+    has_ellipsis: bool = False  # does this template has "..."?
+    capture_last: bool = False  # the last children captures the last items " . t"?
+
+@dataclass(frozen=True)
+class Pattern:
+    children: tuple = ()
+    has_ellipsis: bool = False  # does this template has "..."?
+    capture_last: bool = False  # the last children captures the last items " . t"?
+    
+@dataclass(frozen=True)
+class SyntaxRule:
+    pattern: Pattern
+    template: Template
+
+@dataclass(frozen=True)
+class TransformerSpec:
+    identifiers: tuple
+    syntax_rules: tuple
+
+@dataclass(frozen=True)
+class SyntaxDefinition:
+    name: Symbol
+    spec: TransformerSpec

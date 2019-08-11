@@ -100,3 +100,11 @@ def test_set_(text, expected):
 ])
 def test_cond(text, expected):
     assert expected == translate(text).commands[0]
+
+@pytest.mark.skip(reason="not implemented")
+@pytest.mark.parametrize("text,expected", [
+    ("(define-syntax a (syntax-rules () ((a) (1))))", SyntaxDefinition(Symbol('a'), TransformerSpec((), t_(SyntaxRule(Pattern(), Template(1)))))),
+])
+def test_transformer(text, expected):
+    assert expected == translate(text, debug=False).commands[0]
+
